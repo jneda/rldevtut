@@ -4,9 +4,18 @@ __lua__
 function _init()
 	screen_width=128
 	screen_height=128
+
+	tile_size=8
 	
 	player_x=screen_width/2
 	player_y=screen_height/2
+end
+
+function _update()
+	if(btnp(0)) player_x-=tile_size
+	if(btnp(1)) player_x+=tile_size
+	if(btnp(2)) player_y-=tile_size
+	if(btnp(3)) player_y+=tile_size
 end
 
 function _draw()
