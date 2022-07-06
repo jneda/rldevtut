@@ -7,6 +7,9 @@ function _init()
 
 	tile_size=8
 	
+	map_width=screen_width/tile_size
+	map_height=screen_height/tile_size
+	
 	char_offset_x=2
 	char_offset_y=1
 	
@@ -16,13 +19,22 @@ function _init()
 	player=make_entity(player_x,player_y,"@",7)
 	npc=make_entity(player_x-5*tile_size,player_y,"@",10)
 	entities={npc,player}
+	
+	gamemap=make_map(map_width,map_height)
 end
 
 function _update()
 	action=handle_input()
 	if action then
 		if action.type=="move" then
-			player:move(action.dx,action.dy)
+		 local destx=flr((player.x+action.dx)/tile_size)
+		 local desty=flr((player.y+action.dy)/tile_size)
+		 --debug
+		 print("dx:"..destx.." dy:"..desty,0,0,3)
+		 local t=gamemap.tiles[destx][desty]
+		 if t.walkable and gamemap:in_bounds(destx,desty)then
+			 player:move(action.dx,action.dy)
+   end
   end
  end
 end
@@ -38,6 +50,8 @@ function _draw()
 	 line(0,7+i*8,127,7+i*8)
 	end
 	--]]
+	
+	gamemap:draw()
 	
 	for entity in all(entities) do
 		print(
@@ -82,6 +96,65 @@ function make_entity(x,y,char,col)
   slf.y+=dy*tile_size
  end
  return o
+end
+-->8
+--map
+
+--tiles
+function make_tile(ch,fg,bg,
+ walkable, transparent)
+ 
+ return {
+  ch=ch,fg=fg,bg=bg,
+  walkable=walkable,
+  transparent=transparent
+ }	
+end
+
+floor=make_tile(".",6,0,true,true)
+wall=make_tile("#",6,0,false,false)
+
+--map table
+function make_map(width,height)
+	local gamemap={}
+	gamemap.width=width
+	gamemap.height=height
+	gamemap.tiles=mapgen(width,height)
+	gamemap.in_bounds=function(self,x,y)
+	 return x>=1 and x<=self.width
+	  and y>=1 and y<=self.height
+	end	
+	gamemap.draw=function(self)
+	 for x=1,self.width do
+	 	for y=1,self.height do
+	 		local t=self.tiles[x][y]
+	 		print(t.ch,
+	 		 (x-1)*tile_size+char_offset_x,
+	 		 (y-1)*tile_size+char_offset_y,
+	 		 t.fg)
+			end
+  		end
+	end
+	
+	return gamemap
+end
+
+function mapgen(width,height)
+ local tiles={}
+	for x=1,width do
+		local column={}
+		for y=1,height do
+			local t
+			if x>=7 and x<=9 and y==4 then
+				t=wall
+			else
+			 t=floor
+			end
+			column[y]=t
+		end
+		tiles[x]=column
+	end
+	return tiles
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
