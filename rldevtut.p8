@@ -1,6 +1,9 @@
 pico-8 cartridge // http://www.pico-8.com
 version 36
 __lua__
+--roguelikedev does the complete roguelike tutorial 2022
+--by jneda
+
 function _init()
 	screen_width=128
 	screen_height=128
@@ -13,26 +16,28 @@ function _init()
 	char_offset_x=2
 	char_offset_y=1
 	
-	player_x=screen_width/2
-	player_y=screen_height/2
+	player_x=flr(map_width/2)
+	player_y=flr(map_height/2)
 	
 	player=make_entity(player_x,player_y,"@",7)
-	npc=make_entity(player_x-5*tile_size,player_y,"@",10)
+	npc=make_entity(player_x-5,player_y,"@",10)
 	entities={npc,player}
 	
 	gamemap=make_map(map_width,map_height)
+
+	debug_msg=""
 end
 
 function _update()
 	action=handle_input()
 	if action then
 		if action.type=="move" then
-		 local destx=flr((player.x+action.dx)/tile_size)
-		 local desty=flr((player.y+action.dy)/tile_size)
+		 local destx=player.x+action.dx
+		 local desty=player.y+action.dy
 		 --debug
-		 print("dx:"..destx.." dy:"..desty,0,0,3)
-		 local t=gamemap.tiles[destx][desty]
-		 if t.walkable and gamemap:in_bounds(destx,desty)then
+		 debug_msg="dx:"..destx.." dy:"..desty
+		 local t=gamemap:get_tile(destx,desty)
+		 if t and t.walkable and gamemap:in_bounds(destx,desty)then
 			 player:move(action.dx,action.dy)
    end
   end
@@ -56,11 +61,13 @@ function _draw()
 	for entity in all(entities) do
 		print(
 		 entity.char,
-		 entity.x+char_offset_x,
-		 entity.y+char_offset_y,
+		 entity.x*tile_size+char_offset_x,
+		 entity.y*tile_size+char_offset_y,
 		 entity.col
 		)
 	end
+
+	print(debug_msg,0,0,3)
 end
 -->8
 --actions
@@ -91,9 +98,9 @@ function make_entity(x,y,char,col)
  local o={
   x=x,y=y,char=char,col=col
  }
- o.move = function (slf,dx,dy)
-  slf.x+=dx*tile_size
-  slf.y+=dy*tile_size
+ o.move = function (self,dx,dy)
+  self.x+=dx
+  self.y+=dy
  end
  return o
 end
@@ -120,17 +127,21 @@ function make_map(width,height)
 	gamemap.width=width
 	gamemap.height=height
 	gamemap.tiles=mapgen(width,height)
+	gamemap.get_tile=function(self,x,y)
+	 if (not self:in_bounds(x,y)) return nil
+     return self.tiles[x][y]
+	end
 	gamemap.in_bounds=function(self,x,y)
-	 return x>=1 and x<=self.width
-	  and y>=1 and y<=self.height
+	 return x>=0 and x<=self.width-1
+	  and y>=0 and y<=self.height-1
 	end	
 	gamemap.draw=function(self)
-	 for x=1,self.width do
-	 	for y=1,self.height do
+	 for x=0,self.width-1 do
+	 	for y=0,self.height-1 do
 	 		local t=self.tiles[x][y]
 	 		print(t.ch,
-	 		 (x-1)*tile_size+char_offset_x,
-	 		 (y-1)*tile_size+char_offset_y,
+	 		 x*tile_size+char_offset_x,
+	 		 y*tile_size+char_offset_y,
 	 		 t.fg)
 			end
   		end
@@ -141,9 +152,9 @@ end
 
 function mapgen(width,height)
  local tiles={}
-	for x=1,width do
+	for x=0,width-1 do
 		local column={}
-		for y=1,height do
+		for y=0,height-1 do
 			local t
 			if x>=7 and x<=9 and y==4 then
 				t=wall
