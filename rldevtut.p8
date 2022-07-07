@@ -32,17 +32,11 @@ function _update()
 	action=handle_input()
 	if action then
 		if action.type=="move" then
-		 local destx=player.x+action.dx
-		 local desty=player.y+action.dy
-		 --debug
-		 debug_msg="dx:"..destx.." dy:"..desty
-		 local t=gamemap:get_tile(destx,desty)
-		 if t and t.walkable and gamemap:in_bounds(destx,desty)then
-			 player:move(action.dx,action.dy)
-   end
-  end
+		 --invoke method
+		 action:perform(gamemap,player)
+        end
+    end
  end
-end
 
 function _draw()
 	cls()
@@ -78,6 +72,18 @@ function make_action(_type,args)
 		for k,v in pairs(args) do
 			o[k]=v
 		end
+	end
+	--define perform method according to type
+	if _type=="move" then
+     o.perform=function(self,gamemap,entity)
+	  --check if move is valid
+	  local dest_x=entity.x+self.dx
+	  local dest_y=entity.y+self.dy
+	  if (not gamemap:in_bounds(dest_x,dest_y)) return
+	  if (not gamemap:get_tile(dest_x,dest_y).walkable) return
+      
+	  entity:move(self.dx,self.dy)
+	 end
 	end
 	return o
 end
