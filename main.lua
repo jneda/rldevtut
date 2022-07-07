@@ -19,7 +19,7 @@ function _init()
 	npc=make_entity(player_x-5,player_y,"@",10)
 	entities={npc,player}
 	
-	gamemap=make_map(map_width,map_height)
+	gamemap=generate_dungeon(map_width,map_height)
 
 	debug_msg=""
 end
@@ -30,9 +30,9 @@ function _update()
 		if action.type=="move" then
 		 --invoke method
 		 action:perform(gamemap,player)
-        end
-    end
+  end
  end
+end
 
 function _draw()
 	cls()
