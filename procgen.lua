@@ -19,6 +19,10 @@ function make_room(x,y,w,h)
  local center_x=flr((r.x1+r.x2)/2)
  local center_y=flr((r.y1+r.y2)/2)
  r.center={x=center_x,y=center_y}
+ r.intersects=function(self,other)
+  return self.x1<=other.x2 and self.x2>=other.x1
+   and self.y1<=other.y2 and self.y2>=other.y1
+ end
  return r
 end
 
@@ -77,16 +81,42 @@ local corner_x,corner_y
  end
 end
 
-function generate_dungeon(map_width,map_height)
+function generate_dungeon(
+    max_rooms,
+    room_min_size,
+    room_max_size,
+    map_width,
+    map_height,
+    player
+)
+
  local gamemap=make_map(map_width,map_height)
+ local rooms={}
 
- local room1=make_room(0,0,6,8)
- local room2=make_room(6,4,8,6)
+ for i=1,max_rooms do
+  local r_width=flr(rnd(room_max_size-room_min_size)+room_min_size)
+  local r_height=flr(rnd(room_max_size-room_min_size)+room_min_size)
+  local x=flr(rnd(gamemap.width-r_width-1))
+  local y=flr(rnd(gamemap.height-r_height-1))
 
- carve_room(gamemap,room1)
- carve_room(gamemap,room2)
-
- carve_tunnel(gamemap,room1.center,room2.center)
+  local new_r=make_room(x,y,r_width,r_height)
+  
+  local intersects=false
+  for r in all(rooms) do
+   if new_r:intersects(r) then intersects=true end
+  end
+  
+  if not intersects then
+   carve_room(gamemap,new_r)
+   if #rooms==0 then 
+    player.x=new_r.center.x
+    player.y=new_r.center.y
+   else
+    carve_tunnel(gamemap,rooms[#rooms].center,new_r.center)
+   end
+   add(rooms,new_r)
+  end
+ end
 
  return gamemap
 end

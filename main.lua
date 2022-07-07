@@ -8,6 +8,10 @@ function _init()
 	
 	map_width=screen_width/tile_size
 	map_height=screen_height/tile_size
+
+ room_max_size=7
+ room_min_size=3
+ max_rooms=10
 	
 	char_offset_x=2
 	char_offset_y=1
@@ -19,7 +23,14 @@ function _init()
 	npc=make_entity(player_x-5,player_y,"@",10)
 	entities={npc,player}
 	
-	gamemap=generate_dungeon(map_width,map_height)
+	gamemap=generate_dungeon(
+  max_rooms,
+  room_min_size,
+  room_max_size,
+  map_width,
+  map_height,
+  player
+ )
 
 	debug_msg=""
 end
