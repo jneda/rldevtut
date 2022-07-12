@@ -41,8 +41,8 @@ function make_map(width, height)
    for y = 0, self.height - 1 do
     local t = self.tiles[x][y]
     print(t.ch,
-     x * tile_size + char_offset_x,
-     y * tile_size + char_offset_y,
+     x*char_width,
+     y*char_height,
      t.fg)
    end
   end

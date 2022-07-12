@@ -4,17 +4,15 @@ function _init()
  screen_width=128
  screen_height=128
 
- tile_size=8
+ char_width=4
+ char_height=6
  
- map_width=screen_width/tile_size
- map_height=screen_height/tile_size
+ map_width=flr(screen_width/char_width)
+ map_height=flr(screen_height/char_height)
 
- room_max_size=7
- room_min_size=3
- max_rooms=10
- 
- char_offset_x=2
- char_offset_y=1
+ room_max_size=8
+ room_min_size=4
+ max_rooms=20
  
  player_x=flr(map_width/2)
  player_y=flr(map_height/2)
@@ -47,23 +45,14 @@ end
 
 function _draw()
  cls()
- --[[
- --debug lines
- for i=0,15 do
-  --horizontal
-  line(7+i*8,0,7+i*8,127)
-  --vertical
-  line(0,7+i*8,127,7+i*8)
- end
- --]]
  
  gamemap:draw()
  
  for entity in all(entities) do
   print(
    entity.char,
-   entity.x*tile_size+char_offset_x,
-   entity.y*tile_size+char_offset_y,
+   entity.x*char_width,
+   entity.y*char_height,
    entity.col
   )
  end
