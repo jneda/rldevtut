@@ -10,9 +10,11 @@ function _init()
  map_width=flr(screen_width/char_width)
  map_height=flr(screen_height/char_height)
 
- room_max_size=8
- room_min_size=4
+ room_max_size=flr(map_width/4)
+ room_min_size=flr(map_height/4)
  max_rooms=20
+
+ sight_radius=8
  
  player_x=flr(map_width/2)
  player_y=flr(map_height/2)
@@ -30,7 +32,9 @@ function _init()
   player
  )
 
- debug_msg=""
+ do_fov(player.x,player.y,sight_radius)
+
+ debug_msgs={}
 end
 
 function _update()
@@ -39,6 +43,7 @@ function _update()
   if action.type=="move" then
    --invoke method
    action:perform(gamemap,player)
+   do_fov(player.x,player.y,sight_radius)
   end
  end
 end
@@ -57,5 +62,11 @@ function _draw()
   )
  end
 
- print(debug_msg,0,0,3)
+ print_debug()
+end
+
+function print_debug()
+ for msg in all(debug_msgs) do
+  print(msg,3)
+ end
 end
