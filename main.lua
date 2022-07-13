@@ -54,12 +54,15 @@ function _draw()
  gamemap:draw()
  
  for entity in all(entities) do
-  print(
-   entity.char,
-   entity.x*char_width,
-   entity.y*char_height,
-   entity.col
-  )
+  if gamemap.visible[entity.x]
+  and gamemap.visible[entity.x][entity.y] then
+   print(
+    entity.char,
+    entity.x*char_width,
+    entity.y*char_height,
+    entity.col
+   )
+  end
  end
 
  print_debug()
