@@ -62,6 +62,29 @@ function plotline(x1,y1,x2,y2)
  return points
 end
 
+function place_entities(room,gamemap,max_monsters)
+ for i=1,max_monsters do
+  local x,y
+  x=flr(rnd(room.x2-(room.x1+1)))+room.x1+1
+  y=flr(rnd(room.y2-(room.y1+1)))+room.y1+1
+  --debug
+  assert(x>room.x1 and x<room.x2 and y>room.y1 and y<room.y2)
+  valid_spot=true
+  for entity in all(gamemap.entities) do
+   if (entity.x==x and entity.y==y) valid_spot=false
+  end
+  if valid_spot then
+   if rnd()<0.8 then
+    --place an orc here
+    entity_factories.orc:spawn(gamemap,x,y)
+   else
+    --place a troll here    
+    entity_factories.troll:spawn(gamemap,x,y)
+   end
+  end
+ end
+end
+
 function carve_tunnel(gamemap,startpoint,endpoint)
 local corner_x,corner_y
  if rnd()<0.5 then
@@ -87,6 +110,7 @@ function generate_dungeon(
     room_max_size,
     map_width,
     map_height,
+    max_monsters_per_room,
     player
 )
 
@@ -114,6 +138,9 @@ function generate_dungeon(
    else
     carve_tunnel(gamemap,rooms[#rooms].center,new_r.center)
    end
+
+   place_entities(new_r,gamemap,max_monsters_per_room)
+
    add(rooms,new_r)
   end
  end
