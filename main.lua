@@ -20,8 +20,6 @@ function _init()
  player_y=flr(map_height/2)
  
  player=make_entity(player_x,player_y,"@",7)
- npc=make_entity(player_x-5,player_y,"@",10)
- entities={npc,player}
  
  gamemap=generate_dungeon(
   max_rooms,
@@ -49,22 +47,8 @@ function _update()
 end
 
 function _draw()
- cls()
- 
+ cls() 
  gamemap:draw()
- 
- for entity in all(entities) do
-  if gamemap.visible[entity.x]
-  and gamemap.visible[entity.x][entity.y] then
-   print(
-    entity.char,
-    entity.x*char_width,
-    entity.y*char_height,
-    entity.col
-   )
-  end
- end
-
  print_debug()
 end
 

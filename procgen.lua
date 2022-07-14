@@ -90,7 +90,7 @@ function generate_dungeon(
     player
 )
 
- local gamemap=make_map(map_width,map_height)
+ local gamemap=make_map(map_width,map_height,{player})
  local rooms={}
 
  for i=1,max_rooms do
